@@ -1,12 +1,8 @@
-from pyrogram import Client
+from pyrogram import Client, filters
 from pyrogram.errors import RPCError
 from pyrogram.handlers import MessageHandler
-from pyrogram import filters
 from pyrogram.raw import base, functions
-import html
-import subprocess
-import os, sys
-import re
+import subprocess, os, sys, re
 
 app = Client("my_account")
 
