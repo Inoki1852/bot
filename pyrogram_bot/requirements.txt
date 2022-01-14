@@ -1,1 +1,1 @@
-pip3 install -U pyrogram tgcrypto
+pip3 install pyrogram tgcrypto
