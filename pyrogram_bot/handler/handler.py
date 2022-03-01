@@ -79,7 +79,7 @@ def idm(app, message):
     chat, reply = cr(app, message)
     app.send_message(chat.id, reply, reply_to_message_id = reply.message_id)
 
-@app.on_message(filters.me & ((filters.regex('^хорош.{0,}$', 2) | filters.regex('^харош.{0,}$', 2))))
+@app.on_message(filters.me & ((filters.regex('^хорош$', 2) | filters.regex('^харош$', 2))))
 def dude_is_good(app, message):
     chat, reply = cr(app, message)
     app.delete_messages(chat.id, message.message_id)
