@@ -9,9 +9,9 @@ from pyrogram.handlers import MessageHandler
 app = Client("my_account")
 
 try:
-    os.chdir('../pyrogram_bot')
+    os.chdir('../app')
 except:
-    os.chdir('../../pyrogram_bot')
+    os.chdir('../../app')
 
 global process1
 global process2
