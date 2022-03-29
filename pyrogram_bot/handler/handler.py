@@ -110,9 +110,9 @@ def dude_is_good(app, message):
 def copy(app, message):
     chat, reply = cr(app, message)
     global if_check
-    rgx = re.compile(r"\.copy @(.+)")
+    rgx = re.compile("\.copy @(.+)")
     text = rgx.findall(message.text)
-    rgx = re.compile(r"(\\S+)")
+    rgx = re.compile("(\\S+)")
     text = rgx.findall(text[0])
     user_full = app.send(
         functions.users.GetFullUser(
