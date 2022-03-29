@@ -1,11 +1,11 @@
-from pyrogram import Client
-from pyrogram.raw import base, functions
-import datetime
-import time
-import asyncio
-from pyrogram.errors import RPCError
+# from pyrogram import Client
+# from pyrogram.raw import base, functions
+# import datetime
+# import time
+# import asyncio
+# from pyrogram.errors import RPCError
 
-app = Client("my_account")
+# app = Client("my_account")
 
 # async def cur_time(app):
 #  async with app:

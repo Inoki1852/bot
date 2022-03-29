@@ -1,27 +1,31 @@
 import os
+import os.path
 import re
 import subprocess
 import sys
 
 from pyrogram import Client, filters
 from pyrogram.handlers import MessageHandler
+from pyrogram.raw import functions
 
 app = Client("my_account")
 
-try:
-    os.chdir('../app')
-except:
-    os.chdir('../../app')
-
 global process1
 global process2
+global if_check
+if_check = False
 
 try:
-    process1 = subprocess.Popen("python func/func.py")
-    process2 = subprocess.Popen("python g_p_bot/g_p_bot.py")
+    os.chdir('../pyrogram_bot')
 except:
-    process1 = subprocess.Popen("python func/func.py", shell=True)
-    process2 = subprocess.Popen("python g_p_bot/g_p_bot.py", shell=True)
+    os.chdir('../../pyrogram_bot')
+
+try:
+    process1 = subprocess.Popen("python3 func/func.py")
+    process2 = subprocess.Popen("python3 gp_bot/gp_bot.py")
+except:
+    process1 = subprocess.Popen("python3 func/func.py", shell=True)
+    process2 = subprocess.Popen("python3 gp_bot/gp_bot.py", shell=True)
 
 
 def cr(app, message):
@@ -30,35 +34,40 @@ def cr(app, message):
     return chat, reply
 
 
-@app.on_message(filters.regex('^\.rel$'))
+@app.on_message(filters.regex(r'^\.bot$'))
+def bot(app, message):
+    chat, reply = cr(app, message)
+    app.send_message(chat.id, "<i>Бот жив, здоров!</i>", reply_to_message_id=message.message_id)
+
+
+@app.on_message(filters.regex(r'^\.rel$'))
 def rel(app, message):
     chat, reply = cr(app, message)
     app.send_message(chat.id, "<i>Бот перезагрузится через 3 секунды!</i>", reply_to_message_id=message.message_id)
     process1.terminate()
     process2.terminate()
-    os.execv(sys.executable, ['python'] + sys.argv)
+    os.execv(sys.executable, ['python3'] + sys.argv)
 
 
-@app.on_message(filters.regex('^\.stop$'))
+@app.on_message(filters.regex(r'^\.stop$'))
 def stop(app, message):
     chat, reply = cr(app, message)
-    app.send_message(chat.id, "<i>Останавливаем работу бота...</i>", reply_to_message_id=message.message_id)
+    app.send_audio(chat.id, "media/shutdown.mp3", file_name="Windows XP", reply_to_message_id=message.message_id)
     process1.terminate()
     process2.terminate()
     sys.exit()
 
 
-@app.on_message(filters.me & filters.regex('^\.edit'))
+@app.on_message(filters.me & filters.regex(r'^\.edit'))
 def edit(app, message):
     chat, reply = cr(app, message)
-    global text
-    rgx = re.compile("\.edit(.+)")
+    rgx = re.compile(r"\.edit(.+)")
     text = rgx.findall(message.text)
-    rgx = re.compile("(\\S+)")
+    rgx = re.compile(r"(\\S+)")
     text = rgx.findall(text[0])
-    edit_handl = app.add_handler(MessageHandler(editing, filters.me & filters.text))
+    edit_handler = app.add_handler(MessageHandler(editing, filters.me & filters.text))
     if text == "n":
-        app.remove_handler(*edit_handl)
+        app.remove_handler(*edit_handler)
 
 
 def editing(app, message):
@@ -75,24 +84,19 @@ def editing(app, message):
                                                                             text[2], text[1], text[0]))
 
 
-@app.on_message((filters.me | filters.user("MrBuxlo") | filters.user("@ClayzDart")) & filters.regex('^\.copy'))
-def copy(app, message):
-    chat, reply = cr(app, message)
-    rgx = re.compile("\.copy(.+)")
-    text = rgx.findall(message.text)
-    rgx = re.compile("(\\S+)")
-    text = rgx.findall(text[0])
-    text = " ".join(text)
-    app.copy_message("gifs_and_pics", chat.id, reply.message_id, caption=text)
-
-
-@app.on_message(filters.me & filters.regex('^\.idm$'))
+@app.on_message(filters.me & filters.regex(r'^\.idm$'))
 def idm(app, message):
     chat, reply = cr(app, message)
     app.send_message(chat.id, reply, reply_to_message_id=reply.message_id)
 
 
-@app.on_message(filters.me & ((filters.regex('^хорош$', 2) | filters.regex('^харош$', 2))))
+@app.on_message(filters.me & filters.regex(r'^\.idc$'))
+def idc(app, message):
+    chat, reply = cr(app, message)
+    app.send_message(chat.id, reply, reply_to_message_id=reply.message_id)
+
+
+@app.on_message(filters.me & ((filters.regex(r'^хорош$', 2) | filters.regex(r'^харош$', 2))))
 def dude_is_good(app, message):
     chat, reply = cr(app, message)
     app.delete_messages(chat.id, message.message_id)
@@ -102,10 +106,66 @@ def dude_is_good(app, message):
         app.send_animation(chat.id, "media/dude_is_good.mp4", reply_to_message_id=reply.message_id, unsave=True)
 
 
-@app.on_message(filters.regex('^\.bot$'))
-def bot(app, message):
+@app.on_message(filters.me & filters.regex(r'^\.copy'))
+def copy(app, message):
     chat, reply = cr(app, message)
-    app.send_message(chat.id, "<i>Бот жив, здоров!</i>", reply_to_message_id=message.message_id)
+    global if_check
+    rgx = re.compile(r"\.copy @(.+)")
+    text = rgx.findall(message.text)
+    rgx = re.compile(r"(\\S+)")
+    text = rgx.findall(text[0])
+    user_full = app.send(
+        functions.users.GetFullUser(
+            id=app.resolve_peer(text[0])
+        )
+    )
+    user = app.get_users(text[0])
+    photo = app.get_profile_photos(text[0], limit=1)
+    photo_me = app.get_profile_photos("inoki1852", limit=1)
+    if os.path.exists("handler/downloads/me.png"):
+        pass
+    else:
+        app.download_media(photo_me[0], "me.png")
+    app.download_media(photo[0], "photo.png")
+    if if_check:
+        photos = app.get_profile_photos("me")
+        app.delete_profile_photos(photos[0].file_id)
+    app.set_profile_photo(photo="handler/downloads/photo.png")
+    user_first_name = user.first_name
+    user_last_name = user.last_name
+    user_about = user_full.full_user.about
+    if user_full.full_user.about is None:
+        user_about = ""
+    elif user.first_name is None:
+        user_first_name = ""
+    elif user.last_name is None:
+        user_last_name = ""
+    app.update_profile(
+        first_name=user_first_name,
+        last_name=user_last_name,
+        bio=user_about
+    )
+    if_check = True
+    app.send_message(chat.id, "<i>Копирование завершено!</i>", reply_to_message_id=message.message_id)
+
+
+@app.on_message(filters.me & filters.regex(r'^\.revert'))
+def revert(app, message):
+    chat, reply = cr(app, message)
+    first_name = "Inoki"
+    last_name = "🇺🇦"
+    bio = "Русский военный корабль, иди нахуй."
+    global if_check
+    if if_check:
+        photos = app.get_profile_photos("me")
+        app.delete_profile_photos(photos[0].file_id)
+    app.update_profile(
+        first_name=first_name,
+        last_name=last_name,
+        bio=bio
+    )
+    if_check = False
+    app.send_message(chat.id, "<i>Возврат к истокам!</i>", reply_to_message_id=message.message_id)
 
 
 app.run()
