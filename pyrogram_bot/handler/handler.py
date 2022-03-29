@@ -16,9 +16,9 @@ global if_check
 if_check = False
 
 try:
-    os.chdir('../pyrogram_bot')
+    os.chdir('../app')
 except:
-    os.chdir('../../pyrogram_bot')
+    os.chdir('../../app')
 
 try:
     process1 = subprocess.Popen("python3 func/func.py")
