@@ -1,1 +1,1 @@
-worker: python handler/handler.py
+worker: python3 handler/handler.py
