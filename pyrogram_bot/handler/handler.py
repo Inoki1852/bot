@@ -37,13 +37,13 @@ def cr(app, message):
 @app.on_message(filters.regex(r'^\.bot$'))
 def bot(app, message):
     chat, reply = cr(app, message)
-    app.send_message(chat.id, "<i>Бот жив, здоров!</i>", reply_to_message_id=message.message_id)
+    app.send_message(chat.id, "<i>Ah, ha, ha, ha, stayin' alive, stayin' alive.</i>", reply_to_message_id=message.message_id)
 
 
 @app.on_message(filters.regex(r'^\.rel$'))
 def rel(app, message):
     chat, reply = cr(app, message)
-    app.send_message(chat.id, "<i>Бот перезагрузится через 3 секунды!</i>", reply_to_message_id=message.message_id)
+    app.send_audio(chat.id, "media/shutdown.mp3", file_name="Windows XP", reply_to_message_id=message.message_id)
     process1.terminate()
     process2.terminate()
     os.execv(sys.executable, ['python3'] + sys.argv)
