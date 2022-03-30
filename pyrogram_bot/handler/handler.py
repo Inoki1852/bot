@@ -13,6 +13,8 @@ app = Client("my_account")
 global process1
 global process2
 global if_check
+global text
+
 if_check = False
 
 try:
@@ -37,7 +39,8 @@ def cr(app, message):
 @app.on_message(filters.regex(r'^\.bot$'))
 def bot(app, message):
     chat, reply = cr(app, message)
-    app.send_message(chat.id, "<i>Ah, ha, ha, ha, stayin' alive, stayin' alive.</i>", reply_to_message_id=message.message_id)
+    app.send_message(chat.id, "<i>Ah, ha, ha, ha, stayin' alive, stayin' alive!</i>",
+                     reply_to_message_id=message.message_id)
 
 
 @app.on_message(filters.regex(r'^\.rel$'))
@@ -61,9 +64,10 @@ def stop(app, message):
 @app.on_message(filters.me & filters.regex(r'^\.edit'))
 def edit(app, message):
     chat, reply = cr(app, message)
-    rgx = re.compile(r"\.edit(.+)")
+    global text
+    rgx = re.compile("\.edit(.+)")
     text = rgx.findall(message.text)
-    rgx = re.compile(r"(\\S+)")
+    rgx = re.compile("(\\S+)")
     text = rgx.findall(text[0])
     edit_handler = app.add_handler(MessageHandler(editing, filters.me & filters.text))
     if text == "n":
@@ -72,6 +76,7 @@ def edit(app, message):
 
 def editing(app, message):
     chat, reply = cr(app, message)
+    global text
     len_text = len(text)
     if len_text == 1:
         app.edit_message_text(chat.id, message.message_id, "<{0}>{1}</{2}>".format(text[0], message.text, text[0]))
@@ -87,16 +92,30 @@ def editing(app, message):
 @app.on_message(filters.me & filters.regex(r'^\.idm$'))
 def idm(app, message):
     chat, reply = cr(app, message)
-    app.send_message(chat.id, reply, reply_to_message_id=reply.message_id)
+    if reply is None:
+        app.send_message(chat.id, message, reply_to_message_id=message.message_id)
+    else:
+        app.send_message(chat.id, reply, reply_to_message_id=message.message_id)
 
 
 @app.on_message(filters.me & filters.regex(r'^\.idc$'))
 def idc(app, message):
     chat, reply = cr(app, message)
-    app.send_message(chat.id, reply, reply_to_message_id=reply.message_id)
+    app.send_message(chat.id, chat, reply_to_message_id=message.message_id)
 
 
-@app.on_message(filters.me & ((filters.regex(r'^хорош$', 2) | filters.regex(r'^харош$', 2))))
+@app.on_message(filters.me & filters.regex(r'^\.user$'))
+def copy(app, message):
+    chat, reply = cr(app, message)
+    if reply is None:
+        user_id = message.from_user.id
+    else:
+        user_id = reply.from_user.id
+    user = app.get_users(user_id)
+    app.send_message(chat.id, user, reply_to_message_id=message.message_id)
+
+
+@app.on_message(filters.me & (filters.regex(r'^хорош$', 2) | filters.regex(r'^харош$', 2)))
 def dude_is_good(app, message):
     chat, reply = cr(app, message)
     app.delete_messages(chat.id, message.message_id)
@@ -110,41 +129,75 @@ def dude_is_good(app, message):
 def copy(app, message):
     chat, reply = cr(app, message)
     global if_check
-    rgx = re.compile("\.copy @(.+)")
-    text = rgx.findall(message.text)
-    rgx = re.compile("(\\S+)")
-    text = rgx.findall(text[0])
-    user_full = app.send(
-        functions.users.GetFullUser(
-            id=app.resolve_peer(text[0])
+    if reply is None:
+        rgx = re.compile("\.copy @(.+)")
+        text_id = rgx.findall(message.text)
+        rgx = re.compile("(\\S+)")
+        text_id = rgx.findall(text_id[0])
+        user_full = app.send(
+            functions.users.GetFullUser(
+                id=app.resolve_peer(text_id[0])
+            )
         )
-    )
-    user = app.get_users(text[0])
-    photo = app.get_profile_photos(text[0], limit=1)
-    photo_me = app.get_profile_photos("inoki1852", limit=1)
-    if os.path.exists("handler/downloads/me.png"):
-        pass
+        user = app.get_users(text_id[0])
+        photo = app.get_profile_photos(text_id[0], limit=1)
+        photo_me = app.get_profile_photos("inoki1852", limit=1)
+        if os.path.exists("handler/downloads/me.png"):
+            pass
+        else:
+            app.download_media(photo_me[0], "me.png")
+        app.download_media(photo[0], "photo.png")
+        if if_check:
+            photos = app.get_profile_photos("me")
+            app.delete_profile_photos(photos[0].file_id)
+        app.set_profile_photo(photo="handler/downloads/photo.png")
+        user_first_name = user.first_name
+        user_last_name = user.last_name
+        user_about = user_full.full_user.about
+        if user_full.full_user.about is None:
+            user_about = ""
+        elif user.first_name is None:
+            user_first_name = ""
+        elif user.last_name is None:
+            user_last_name = ""
+        app.update_profile(
+            first_name=user_first_name,
+            last_name=user_last_name,
+            bio=user_about
+        )
     else:
-        app.download_media(photo_me[0], "me.png")
-    app.download_media(photo[0], "photo.png")
-    if if_check:
-        photos = app.get_profile_photos("me")
-        app.delete_profile_photos(photos[0].file_id)
-    app.set_profile_photo(photo="handler/downloads/photo.png")
-    user_first_name = user.first_name
-    user_last_name = user.last_name
-    user_about = user_full.full_user.about
-    if user_full.full_user.about is None:
-        user_about = ""
-    if user.first_name is None:
-        user_first_name = ""
-    if user.last_name is None:
-        user_last_name = ""
-    app.update_profile(
-        first_name=user_first_name,
-        last_name=user_last_name,
-        bio=user_about
-    )
+        user_id = reply.from_user.id
+        user_full = app.send(
+            functions.users.GetFullUser(
+                id=app.resolve_peer(user_id)
+            )
+        )
+        user = app.get_users(user_id)
+        photo = app.get_profile_photos(user_id, limit=1)
+        photo_me = app.get_profile_photos("inoki1852", limit=1)
+        if os.path.exists("handler/downloads/me.png"):
+            pass
+        else:
+            app.download_media(photo_me[0], "me.png")
+        app.download_media(photo[0], "photo.png")
+        if if_check:
+            photos = app.get_profile_photos("me")
+            app.delete_profile_photos(photos[0].file_id)
+        app.set_profile_photo(photo="handler/downloads/photo.png")
+        user_first_name = user.first_name
+        user_last_name = user.last_name
+        user_about = user_full.full_user.about
+        if user_full.full_user.about is None:
+            user_about = ""
+        elif user.first_name is None:
+            user_first_name = ""
+        elif user.last_name is None:
+            user_last_name = ""
+        app.update_profile(
+            first_name=user_first_name,
+            last_name=user_last_name,
+            bio=user_about
+        )
     if_check = True
     app.send_message(chat.id, "<i>Копирование завершено!</i>", reply_to_message_id=message.message_id)
 
