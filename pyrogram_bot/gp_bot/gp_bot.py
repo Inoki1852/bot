@@ -7,7 +7,7 @@ app = Client("my_bot", bot_token="5005315425:AAGc9fI1PumWim7YehHlh5xaMjJ2W2g5DN4
 users = ["inoki1852", "ClayzDart", "Nne_li"]
 
 @app.on_message(filters.private & ~(
-        filters.user("inoki1852") | filters.user("ClayzDart") | filters.user("MrBuxlo") | filters.user("Nne_li")))
+        filters.user("inoki1852") | filters.user("ClayzDart") | filters.user("Nne_li")))
 def suggest(client, message):
     media = message.media
     if media is not None:
@@ -34,7 +34,7 @@ def media(client, message):
 
 
 @app.on_message(filters.private & filters.regex(r'^\.') & (
-        filters.user("inoki1852") | filters.user("ClayzDart") | filters.user("MrBuxlo") | filters.user("Nne_li")))
+        filters.user("inoki1852") | filters.user("ClayzDart") | filters.user("Nne_li")))
 def answer(client, message):
     reply = message.reply_to_message
     if reply is not None:

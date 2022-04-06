@@ -5,7 +5,7 @@ import subprocess
 from chat_reply import cr
 
 try:
-    os.chdir('../app')
+    os.chdir('../pyrogram_bot')
 except:
     os.chdir('../..')
 
