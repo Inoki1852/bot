@@ -6,8 +6,7 @@ app = Client("my_bot", bot_token="5005315425:AAGc9fI1PumWim7YehHlh5xaMjJ2W2g5DN4
 
 users = ["inoki1852", "ClayzDart", "Nne_li"]
 
-@app.on_message(filters.private & ~(
-        filters.user("inoki1852") | filters.user("ClayzDart") | filters.user("Nne_li")))
+@app.on_message(filters.private)
 def suggest(client, message):
     media = message.media
     if media is not None:
@@ -45,7 +44,7 @@ def answer(client, message):
             user_name = re.findall(r'by (\w+)', reply.caption)
         text_answer = re.findall(r'\.(.*)', message.text)
         try:
-            app.send_message(user_name[0], text_answer[0])
+            app.send_message(user_name[0], "{}  <code>by {}</code>".format(text_answer[0], message.from_user.username))
         except:
             pass
 
