@@ -7,14 +7,17 @@ app = Client("my_bot", bot_token="5005315425:AAGc9fI1PumWim7YehHlh5xaMjJ2W2g5DN4
 users = ["inoki1852", "ClayzDart", "Nne_li"]
 
 
-@app.on_message(filters.private & filters.regex(r'^[^#].+'))
+@app.on_message(filters.private & (filters.regex(r'^[^#].+')) | filters.media)
 def suggest(client, message):
-    text = re.findall(r'^\.?(.+)', message.text)
     media = message.media
+    text = message.text
+    if text is None:
+        text = ""
     if media is not None:
         for value in users:
-            message.copy(value, caption="{}  <code>by {}</code>".format(text[0], message.from_user.username))
+            message.copy(value, caption="{} by <code>{}</code>".format(text, message.from_user.username))
     else:
+        text = re.findall(r'^\.?(.+)', message.text)
         user_message = "{}:\n— {}".format(message.from_user.username, text[0])
         for value in users:
             app.send_message(value, user_message)
