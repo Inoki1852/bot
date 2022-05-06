@@ -72,9 +72,9 @@ def copy(app, message):
         user_about = user_full.full_user.about
         if user_full.full_user.about is None:
             user_about = ""
-        elif user.first_name is None:
+        if user.first_name is None:
             user_first_name = ""
-        elif user.last_name is None:
+        if user.last_name is None:
             user_last_name = ""
         app.update_profile(
             first_name=user_first_name,

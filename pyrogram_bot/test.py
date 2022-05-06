@@ -1,4 +1,4 @@
 import re
 
-text = re.findall(r'by (\w+)', "Message.  by ikoni1852")
+text = re.findall(r'\.(.+)', '''''')
 print(text)
