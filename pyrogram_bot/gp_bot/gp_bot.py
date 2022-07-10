@@ -6,10 +6,9 @@ api_id = 1474699
 api_hash = "5427b333bbe9380419f6fdf2ccdd37a2"
 bot_token = "5005315425:AAGc9fI1PumWim7YehHlh5xaMjJ2W2g5DN4"
 
-app = Client("my_bot", bot_token="5005315425:AAGc9fI1PumWim7YehHlh5xaMjJ2W2g5DN4")
+app = Client("my_bot", api_id, api_hash, bot_token)
 
 users = ["inoki1852", "ClayzDart", "Nne_li"]
-
 
 @app.on_message(
     (filters.text & filters.regex(r'^[^#].+') | filters.media) & filters.private & ~filters.group)
